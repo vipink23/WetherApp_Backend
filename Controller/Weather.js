@@ -33,4 +33,38 @@ const GetAllWethers = async (req, res)=>{
     }
 }
 
-export default { AddWeather , GetAllWethers };
+const FilterByDate = async (req, res) => {
+    try {
+      const { fromDate, toDate } = req.query;
+  
+      // Log the values to make sure they are passed correctly
+      console.log('fromDate:', fromDate, 'toDate:', toDate);
+  
+      if (!fromDate || !toDate) {
+        return res.status(400).json({ message: "Both fromDate and toDate are required." });
+      }
+  
+      const startDate = new Date(fromDate);
+      const endDate = new Date(toDate);
+  
+      if (isNaN(startDate) || isNaN(endDate)) {
+        return res.status(400).json({ message: "Invalid date format." });
+      }
+  
+      const data = await WeatherModel.find();
+  
+      const filteredData = data.filter((item) => {
+        const itemDate = new Date(item.date);
+        return itemDate >= startDate && itemDate <= endDate;
+      });
+  
+      return res.status(200).json(filteredData);
+    } catch (error) {
+      console.error("Error in Getbydatelimit:", error);
+      return res.status(500).json({ message: "Internal Server Error" });
+    }
+  };
+  
+  
+
+export default { AddWeather , GetAllWethers , FilterByDate };
